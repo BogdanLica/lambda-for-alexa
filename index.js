@@ -553,9 +553,17 @@ const LaunchRequest_Handler = {
     handle(handlerInput) {
         const responseBuilder = handlerInput.responseBuilder;
 
-        let say = 'hello' + ' and welcome to ' + invocationName + ' ! Say help to hear some options.';
+        //let say = 'hello' + ' and welcome to ' + invocationName + ' ! Say help to hear some options.';
 
-        let skillTitle = capitalize(invocationName);
+
+
+        let say = '<prosody pitch="medium"> <prosody volume="x-loud">WELCOME!</prosody> </prosody>';
+        say += "<audio src='soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_intro_01'/>";
+        say += ' I have 3 games for you: <break time="1s"/>';
+        say += ' You can try to guess a city, a country or play my special game, where you will give me a country and you will try to guess the city from that country.';
+        say += ' What would you like to do?'
+        
+        //let skillTitle = capitalize(invocationName);
 
 
         return responseBuilder
