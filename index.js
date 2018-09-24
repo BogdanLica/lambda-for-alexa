@@ -153,7 +153,7 @@ const AMAZON_HelpIntent_Handler =  {
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
         //let intents = getCustomIntents();
-        let sampleIntent = randomElement(intents);
+        //let sampleIntent = randomElement(intents);
 
         let say = ''; 
 
@@ -494,14 +494,31 @@ const FreestyleIntent_Handler =  {
 const GiveUpIntent_Handler =  {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
-        return request.type === 'IntentRequest' && request.intent.name === 'GiveUpIntent' ;
+        const attributes = handlerInput.attributesManager.getSessionAttributes();
+        return request.type === 'IntentRequest' 
+        && request.intent.name === 'GiveUpIntent' 
+        &&(attributes.state === states.CITY   
+        || attributes.state === states.COUNTRY
+        || attributes.state === states.SPECIAL) ;
     },
     handle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
         const responseBuilder = handlerInput.responseBuilder;
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        let say = 'Hello from GiveUpIntent. ';
+        let say = 'The correct answer was : ';
+        // if the country is stored
+        if(sessionAttributes.related)
+        {
+            say+= sessionAttributes.correctAnswer + ' , from ';
+            say+= sessionAttributes.related + ' .';
+        }
+        else
+        {
+            say+= sessionAttributes.correctAnswer + ' .';
+        }
+        
+        sessionAttributes.state = states.START;
 
 
         return responseBuilder
