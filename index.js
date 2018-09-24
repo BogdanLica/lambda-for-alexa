@@ -172,7 +172,7 @@ const AMAZON_HelpIntent_Handler = {
         // }
         // say +=  'I understand  ' + intents.length + ' intents, '
 
-        var help_options = ['guess the city', 'guess the country', 'special game', 'or freestyle']
+        var help_options = ['guess the city', 'guess the country', 'or special game. ']
 
         say += ' You can play the following games :  ' + help_options + '.';
 
@@ -587,7 +587,8 @@ const ErrorHandler = {
         // console.log(`Original Request was: ${JSON.stringify(request, null, 2)}`);
 
         return handlerInput.responseBuilder
-            .speak('Sorry, an error occurred.  Please say again.')
+            .speak('Sorry, I\'m not sure what you meant. Say "help" for more options. ')
+            //.speak('Sorry, an error occurred.  Please say again.')
             .reprompt('Sorry, an error occurred.  Please say again.')
             .getResponse();
     }
@@ -894,28 +895,28 @@ const ResponsePersistenceInterceptor = {
 const skillBuilder = Alexa.SkillBuilders.standard();
 exports.handler = skillBuilder
     .addRequestHandlers(
-        AMAZON_CancelIntent_Handler,
-        AMAZON_HelpIntent_Handler,
-        AMAZON_StopIntent_Handler,
-        AMAZON_NavigateHomeIntent_Handler,
-        AnswerIntent_Handler,
-        GuessTheCityIntent_Handler,
-        GuessTheCountryIntent_Handler,
-        SpecialGameIntent_Handler,
-        GiveUpIntent_Handler,
-        LaunchRequest_Handler,
+        AMAZON_CancelIntent_Handler, 
+        AMAZON_HelpIntent_Handler, 
+        AMAZON_StopIntent_Handler, 
+        AMAZON_NavigateHomeIntent_Handler, 
+        AnswerIntent_Handler, 
+        GuessTheCityIntent_Handler, 
+        GuessTheCountryIntent_Handler, 
+        SpecialGameIntent_Handler, 
+        GiveUpIntent_Handler, 
+        LaunchRequest_Handler, 
         SessionEndedHandler
     )
     .addErrorHandlers(ErrorHandler)
     .addRequestInterceptors(InitMemoryAttributesInterceptor)
     .addRequestInterceptors(RequestHistoryInterceptor)
 
-    // .addResponseInterceptors(ResponseRecordSpeechOutputInterceptor)
+   // .addResponseInterceptors(ResponseRecordSpeechOutputInterceptor)
 
-    // .addRequestInterceptors(RequestPersistenceInterceptor)
-    // .addResponseInterceptors(ResponsePersistenceInterceptor)
+ // .addRequestInterceptors(RequestPersistenceInterceptor)
+ // .addResponseInterceptors(ResponsePersistenceInterceptor)
 
-    // .withTableName("askMemorySkillTable")
-    // .withAutoCreateTable(true)
+ // .withTableName("askMemorySkillTable")
+ // .withAutoCreateTable(true)
 
     .lambda();
