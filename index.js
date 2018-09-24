@@ -170,7 +170,9 @@ const AMAZON_HelpIntent_Handler = {
 
         say += ' You can play the following games :  ' + help_options + '. ';
 
-        say += ' To start a game, just say the name <break time="0.4s"/>  and for "the special game", specify a country as well.'
+        say += ' To start a game, just say the name of that game <break time="0.4s"/>  and for "the special game", specify a country as well.'
+
+        say += " If you are stuck during a game, you can say something like : give up, to find out the correct answer. ";
 
         return responseBuilder
             .speak(say)
@@ -241,6 +243,7 @@ const AnswerIntent_Handler = {
 
 
         let say = '';
+        let hint_plural = 'hints';
 
         //   SLOT: Country 
         if (sessionAttributes.state == states.COUNTRY) {
@@ -248,8 +251,16 @@ const AnswerIntent_Handler = {
             if (slotValues.Country.heardAs) {
 
                 if (slotValues.Country.heardAs.toLowerCase() == sessionAttributes.correctAnswer.toLowerCase()) {
+
+                    if(sessionAttributes.hints_used == 1)
+                    {
+                        hint_plural = 'hint'
+                    }
+
+
+                    slotStatus += "<audio src='soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_01'/>";
                     slotStatus += 'Congratulations! ' + slotValues.Country.heardAs + ' was the right answer . ';
-                    slotStatus += 'You used ' + sessionAttributes.hints_used + ' hints.';
+                    slotStatus += 'You used ' + sessionAttributes.hints_used + ' ' + hint_plural + ' .';
                     slotStatus += ' You can try a different game now, or exit.'
                     sessionAttributes.state = states.START;
                 }
@@ -259,6 +270,7 @@ const AnswerIntent_Handler = {
 
 
             if (!slotValues.Country.heardAs || sessionAttributes.state != states.START) {
+                slotStatus += "<audio src='soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_negative_response_01'/>";
                 slotStatus += 'Sorry, that was not the correct answer. '
                 if (sessionAttributes.allHints.length == 0) {
                     sessionAttributes.state = states.START
@@ -292,8 +304,17 @@ const AnswerIntent_Handler = {
             if (slotValues.City.heardAs) {
 
                 if (slotValues.City.heardAs.toLowerCase() == sessionAttributes.correctAnswer.toLowerCase()) {
+
+
+                    if(sessionAttributes.hints_used == 1)
+                    {
+                        hint_plural = 'hint'
+                    }
+
+
+                    slotStatus += "<audio src='soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_01'/>";
                     slotStatus += 'Congratulations! ' + slotValues.City.heardAs + ' from ' + sessionAttributes.related + ' was the right answer . ';
-                    slotStatus += 'You used ' + sessionAttributes.hints_used + ' hints.';
+                    slotStatus += 'You used ' + sessionAttributes.hints_used + ' ' + hint_plural + ' .';
                     slotStatus += ' You can try a different game now, or exit.'
                     sessionAttributes.state = states.START;
                 }
@@ -302,6 +323,7 @@ const AnswerIntent_Handler = {
             }
             // if the input is not a city or if the game is not over
             if (!slotValues.City.heardAs || sessionAttributes.state != states.START) {
+                slotStatus += "<audio src='soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_negative_response_01'/>";
                 slotStatus += 'Sorry, that was not the correct answer. '
                 if (sessionAttributes.allHints.length == 0) {
                     sessionAttributes.state = states.START
@@ -478,7 +500,7 @@ const SpecialGameIntent_Handler = {
                 say += question
             }
             else {
-                say += 'Sorry, try a different country. A '
+                say += 'Sorry, try a different country. '
             }
 
         }
