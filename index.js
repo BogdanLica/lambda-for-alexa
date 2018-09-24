@@ -281,45 +281,62 @@ const AnswerIntent_Handler =  {
 
         let say = '';
 
-
-
-
-
-        
+        //   SLOT: Country 
         if (sessionAttributes.state == states.COUNTRY)
         {
-            //   SLOT: Country 
+            
         if (slotValues.Country.heardAs) {
-            slotStatus += ' slot Country was heard as ' + slotValues.Country.heardAs + '. ';
-        } else {
-            slotStatus += 'slot Country is empty. ';
+            
+            if (slotValues.Country.heardAs.toLowerCase() == sessionAttributes.correctAnswer.toLowerCase()){
+                slotStatus += 'Congratulations! ' + slotValues.Country.heardAs + ' was the right answer . ';
+                slotStatus += 'You used ' + sessionAttributes.hints_used + ' hints.';
+                slotStatus += ' You can try a different game now, or exit.'
+                sessionAttributes.state = states.START;
+            }
+            
+            
         }
-        if (slotValues.Country.ERstatus === 'ER_SUCCESS_MATCH') {
-            slotStatus += 'a valid ';
-            if(slotValues.Country.resolved !== slotValues.Country.heardAs) {
-                slotStatus += 'synonym for ' + slotValues.Country.resolved + '. '; 
-                } else {
-                slotStatus += 'match. '
-            } // else {
-                //
-        }
-        if (slotValues.Country.ERstatus === 'ER_SUCCESS_NO_MATCH') {
-            slotStatus += 'which did not match any slot value. ';
-            console.log('***** consider adding "' + slotValues.Country.heardAs + '" to the custom slot type used by slot Country! '); 
+        
+        
+        if(!slotValues.Country.heardAs || sessionAttributes.state != states.START)
+        {
+            slotStatus += 'Sorry, that was not the correct answer. '
+            if(sessionAttributes.allHints.length == 0)
+            {
+               sessionAttributes.state = states.START
+               slotStatus += 'The correct answer was ' + sessionAttributes.correctAnswer + ' .';
+               slotStatus += ' You can choose a different game or exit.'
+            }
+            else 
+            {
+               if(sessionAttributes.allHints.length == 1)
+               {
+                   slotStatus += ' The last hint is : '
+               }
+               else
+               {
+                   slotStatus += 'The next hint is : '
+               }
+
+               var next_hint = sessionAttributes.allHints.pop();
+               sessionAttributes.hints_used++;
+               sessionAttributes.current_hint = next_hint;
+
+               slotStatus += next_hint
+
+            }
+           
         }
 
-        if( (slotValues.Country.ERstatus === 'ER_SUCCESS_NO_MATCH') ||  (!slotValues.Country.heardAs) ) {
-            slotStatus += 'A few valid values are, ';
-        }
+
+    }
         
-        }
-        
-        
+         //   SLOT: City 
         if (sessionAttributes.state == states.CITY)
         
         
         {
-            //   SLOT: City 
+           
         if (slotValues.City.heardAs) {
             
             if (slotValues.City.heardAs.toLowerCase() == sessionAttributes.correctAnswer.toLowerCase()){
@@ -331,6 +348,7 @@ const AnswerIntent_Handler =  {
             
             
         } 
+        // if the input is not a city or if the game is not over
         if(!slotValues.City.heardAs || sessionAttributes.state != states.START)
         {
             slotStatus += 'Sorry, that was not the correct answer. '
@@ -411,7 +429,6 @@ const GuessTheCityIntent_Handler =  {
         
         sessionAttributes.hints_used = 1;
         
-        // TO-DO: put random numbers for the country and city
         
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
         
@@ -435,7 +452,29 @@ const GuessTheCountryIntent_Handler =  {
         const responseBuilder = handlerInput.responseBuilder;
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        let say = 'Hello from GuessTheCountryIntent. ';
+        var country = getRandomCountry();
+        
+
+        let say = 'The hint is : ';
+        var hints_json = get_questions_country(country);
+        
+        sessionAttributes.current_hint = '';
+        var question = hints_json.pop();
+        sessionAttributes.allHints = hints_json;
+
+        sessionAttributes.state = states.COUNTRY;
+        
+        // put an attribute with all the questions
+        // put the answer as a separate attribute
+        sessionAttributes.correctAnswer = get_country_name(country)
+        
+        sessionAttributes.hints_used = 1;
+        
+        
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+        
+        say += question
+        
 
 
         return responseBuilder
