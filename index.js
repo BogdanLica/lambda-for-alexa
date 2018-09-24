@@ -6,38 +6,8 @@ const states = {
   START: `_START`,
   CITY: `_City`,
   COUNTRY: `_Country`,
-  SPECIAL : `_Special`,
-  FREESTYLE : `_Freestyle`
+  SPECIAL : `_Special`
 };
-
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
-
-
-
-
-function shuffle(array) {
-    let counter = array.length;
-
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        let index = Math.floor(Math.random() * counter);
-
-        // Decrease counter by 1
-        counter--;
-
-        // And swap the last element with it
-        let temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
-
-    return array;
-}
-
 
 
 
@@ -49,6 +19,23 @@ let countries = JSON.parse(rawdata_countries);
 
 let rawdata_cities = fs.readFileSync('cities_questions.json');  
 let cities = JSON.parse(rawdata_cities); 
+
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+
+function getRandomCountry()
+{
+    return getRandomInt(countries.length)
+}
+
+
+function getRandomCity(country)
+{
+    return getRandomInt(get_number_of_cities_in_a_country(country))
+}
 
 
 
@@ -129,7 +116,7 @@ function getMemoryAttributes() {   const memoryAttributes = {
    return memoryAttributes;
 };
 
-const maxHistorySize = 50; // remember only latest 20 intents 
+const maxHistorySize = 50; // remember only latest 50 intents 
 
 
 // 1. Intent Handlers =============================================
@@ -154,7 +141,7 @@ const AMAZON_CancelIntent_Handler =  {
     },
 };
 
-// help inside the game or what to do??
+
 const AMAZON_HelpIntent_Handler =  {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
@@ -165,7 +152,7 @@ const AMAZON_HelpIntent_Handler =  {
         const responseBuilder = handlerInput.responseBuilder;
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        let intents = getCustomIntents();
+        //let intents = getCustomIntents();
         let sampleIntent = randomElement(intents);
 
         let say = ''; 
@@ -277,8 +264,7 @@ const AnswerIntent_Handler =  {
         const attributes = handlerInput.attributesManager.getSessionAttributes();
         return (attributes.state === states.CITY   
         || attributes.state === states.COUNTRY
-        || attributes.state === states.SPECIAL
-        || attributes.state === states.FREESTYLE)
+        || attributes.state === states.SPECIAL)
         && request.type === 'IntentRequest' 
         && request.intent.name === 'AnswerIntent' ;
     },
@@ -291,10 +277,6 @@ const AnswerIntent_Handler =  {
         let resolvedSlot;
 
         let slotValues = getSlotValues(request.intent.slots); 
-
-
-
-
 
 
         let say = '';
@@ -382,80 +364,9 @@ const AnswerIntent_Handler =  {
             
             
             
-        } else {
-            
-            
-            slotStatus += 'Sorry, that was not the correct answer. '
-                if(sessionAttributes.allHints.length == 2)
-                {
-                    slotStatus += ' The last hint is : '
-                    var hints_given = sessionAttributes.allHints[0];
-                    sessionAttributes.hints++;
-                    
-                    var hints_left = sessionAttributes.allHints;
-                    var tmp = hints_left.slice(1,hints_left.length);
-                    var next_hint = tmp[0];
-                    slotStatus += next_hint
-                    sessionAttributes.allHints = tmp;
-                    sessionAttributes.hints_given = hints_given;
-                }
-                else if (sessionAttributes.allHints.length == 1)
-                {
-                    sessionAttributes.state = states.START
-                    slotStatus += 'The correct answer was ' + sessionAttributes.correctAnswer + ' from '+ sessionAttributes.related + ' .';
-                    slotStatus += ' You can choose a different game or exit.'
-                }
-                else
-                {
-                    slotStatus += 'The next hint is : '
-                    var hints_given = sessionAttributes.allHints[0];
-                    sessionAttributes.hints++;
-                    
-                    var hints_left = sessionAttributes.allHints;
-                    var tmp = hints_left.slice(1,hints_left.length);
-                    var next_hint = tmp[0];
-                    slotStatus += next_hint
-                    sessionAttributes.allHints = tmp;
-                    sessionAttributes.hints_given = hints_given;
-                }
-                
-            
-            
-            
-            
-            
+        } 
             
         }
-        if (slotValues.City.ERstatus === 'ER_SUCCESS_MATCH') {
-            slotStatus += 'a valid ';
-            if(slotValues.City.resolved !== slotValues.City.heardAs) {
-                slotStatus += 'synonym for ' + slotValues.City.resolved + '. '; 
-                } else {
-                slotStatus += 'match. '
-            } // else {
-                //
-        }
-        if (slotValues.City.ERstatus === 'ER_SUCCESS_NO_MATCH') {
-            slotStatus += 'which did not match any slot value. ';
-            console.log('***** consider adding "' + slotValues.City.heardAs + '" to the custom slot type used by slot City! '); 
-        }
-
-        if( (slotValues.City.ERstatus === 'ER_SUCCESS_NO_MATCH') ||  (!slotValues.City.heardAs) ) {
-            
-        }
-            
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
 
         say += slotStatus;
@@ -483,11 +394,11 @@ const GuessTheCityIntent_Handler =  {
 
 
 
-        var country = getRandomInt(countries.length);
+        var country = getRandomCountry();
         
         
         
-        var city = getRandomInt(get_number_of_cities_in_a_country(country))
+        var city = getRandomCity(country);
 
         let say = 'The hint is : ';
         var hints_json = get_questions_city(country,city);
@@ -616,9 +527,6 @@ const LaunchRequest_Handler =  {
         return responseBuilder
             .speak(say)
             .reprompt('try again, ' + say)
-            .withStandardCard('Welcome!', 
-              'Hello!\nThis is a card for your skill, ' + skillTitle,
-               welcomeCardImg.smallImageUrl, welcomeCardImg.largeImageUrl)
             .getResponse();
     },
 };
@@ -737,20 +645,6 @@ function sayArray(myData, penultimateWord = 'and') {
         } 
     }); 
     return result; 
-} 
-function getCustomIntents() { 
-    const modelIntents = model.interactionModel.languageModel.intents; 
- 
-    let customIntents = []; 
- 
- 
-    for (let i = 0; i < modelIntents.length; i++) { 
- 
-        if(modelIntents[i].name.substring(0,7) != "AMAZON." && modelIntents[i].name !== "LaunchRequest" ) { 
-            customIntents.push(modelIntents[i]); 
-        } 
-    } 
-    return customIntents; 
 } 
  
 function getSampleUtterance(intent) { 
@@ -994,4 +888,3 @@ exports.handler = skillBuilder
  // .withAutoCreateTable(true)
 
     .lambda();
-
