@@ -281,6 +281,10 @@ const AnswerIntent_Handler =  {
 
         let say = '';
 
+
+
+
+
         
         if (sessionAttributes.state == states.COUNTRY)
         {
@@ -320,51 +324,42 @@ const AnswerIntent_Handler =  {
             
             if (slotValues.City.heardAs.toLowerCase() == sessionAttributes.correctAnswer.toLowerCase()){
                 slotStatus += 'Congratulations! ' + slotValues.City.heardAs + ' from '+ sessionAttributes.related + ' was the right answer . ';
-                slotStatus += 'You used ' + sessionAttributes.hints + ' hints.';
+                slotStatus += 'You used ' + sessionAttributes.hints_used + ' hints.';
                 slotStatus += ' You can try a different game now, or exit.'
                 sessionAttributes.state = states.START;
             }
-            else{
-                 slotStatus += 'Sorry, that was not the correct answer. '
-                if(sessionAttributes.allHints.length == 2)
-                {
-                    slotStatus += ' The last hint is : '
-                    var hints_given = sessionAttributes.allHints[0];
-                    sessionAttributes.hints++;
-                    
-                    var hints_left = sessionAttributes.allHints;
-                    var tmp = hints_left.slice(1,hints_left.length);
-                    var next_hint = tmp[0];
-                    slotStatus += next_hint
-                    sessionAttributes.allHints = tmp;
-                    sessionAttributes.hints_given = hints_given;
-                }
-                else if (sessionAttributes.allHints.length == 1)
-                {
-                    sessionAttributes.state = states.START
-                    slotStatus += 'The correct answer was ' + sessionAttributes.correctAnswer + ' .';
-                    slotStatus += ' You can choose a different game or exit.'
-                }
-                else
-                {
-                    slotStatus += 'The next hint is : '
-                    var hints_given = sessionAttributes.allHints[0];
-                    sessionAttributes.hints++;
-                    
-                    var hints_left = sessionAttributes.allHints;
-                    var tmp = hints_left.slice(1,hints_left.length);
-                    var next_hint = tmp[0];
-                    slotStatus += next_hint
-                    sessionAttributes.allHints = tmp;
-                    sessionAttributes.hints_given = hints_given;
-                }
-                
-                
-            }
-            
             
             
         } 
+        if(!slotValues.City.heardAs || sessionAttributes.state != states.START)
+        {
+            slotStatus += 'Sorry, that was not the correct answer. '
+            if(sessionAttributes.allHints.length == 0)
+            {
+               sessionAttributes.state = states.START
+               slotStatus += 'The correct answer was ' + sessionAttributes.correctAnswer + ' .';
+               slotStatus += ' You can choose a different game or exit.'
+            }
+            else 
+            {
+               if(sessionAttributes.allHints.length == 1)
+               {
+                   slotStatus += ' The last hint is : '
+               }
+               else
+               {
+                   slotStatus += 'The next hint is : '
+               }
+
+               var next_hint = sessionAttributes.allHints.pop();
+               sessionAttributes.hints_used++;
+               sessionAttributes.current_hint = next_hint;
+
+               slotStatus += next_hint
+
+            }
+           
+        }
             
         }
         
@@ -402,10 +397,10 @@ const GuessTheCityIntent_Handler =  {
 
         let say = 'The hint is : ';
         var hints_json = get_questions_city(country,city);
+        
+        sessionAttributes.current_hint = '';
+        var question = hints_json.pop();
         sessionAttributes.allHints = hints_json;
-        sessionAttributes.hints_given = [];
-        var question = hints_json[0];
-
 
         sessionAttributes.state = states.CITY;
         
@@ -414,7 +409,7 @@ const GuessTheCityIntent_Handler =  {
         sessionAttributes.correctAnswer = get_city_name(country,city);
         sessionAttributes.related = get_country_for_a_city(country);
         
-        sessionAttributes.hints = 1;
+        sessionAttributes.hints_used = 1;
         
         // TO-DO: put random numbers for the country and city
         
@@ -518,8 +513,10 @@ const GiveUpIntent_Handler =  {
             say+= sessionAttributes.correctAnswer + ' .';
         }
         
+        say += ' You can play a different game, or exit.'
         sessionAttributes.state = states.START;
-
+        
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         return responseBuilder
             .speak(say)
