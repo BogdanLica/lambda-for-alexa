@@ -141,7 +141,7 @@ const AMAZON_CancelIntent_Handler = {
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
 
-        let say = 'Thank you for trying the game. ';
+        let say = 'Okay, thank you for trying the game. ';
 
         return responseBuilder
             .speak(say)
@@ -166,17 +166,11 @@ const AMAZON_HelpIntent_Handler = {
 
         let say = '';
 
-        // let previousIntent = getPreviousIntent(sessionAttributes);
-        // if (previousIntent && !handlerInput.requestEnvelope.session.new) {
-        //     say += 'Your last intent was ' + previousIntent + '. ';
-        // }
-        // say +=  'I understand  ' + intents.length + ' intents, '
+        var help_options = ['guess the city', 'guess the country', 'or special game ']
 
-        var help_options = ['guess the city', 'guess the country', 'or special game. ']
+        say += ' You can play the following games :  ' + help_options + '. ';
 
-        say += ' You can play the following games :  ' + help_options + '.';
-
-        say += ' More info is available after you choose a game.'
+        say += ' To start a game, just say the name <break time="0.4s"/>  and for "the special game", specify a country as well.'
 
         return responseBuilder
             .speak(say)
@@ -196,7 +190,7 @@ const AMAZON_StopIntent_Handler = {
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
 
-        let say = 'Okay, talk to you later! ';
+        let say = 'Okay, thank you for trying the game. ';
 
         return responseBuilder
             .speak(say)
@@ -215,7 +209,7 @@ const AMAZON_NavigateHomeIntent_Handler = {
         const responseBuilder = handlerInput.responseBuilder;
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        let say = 'This is the home menu (intent) ';
+        let say = "Say 'help' if you are stuck.  ";
 
 
         return responseBuilder
