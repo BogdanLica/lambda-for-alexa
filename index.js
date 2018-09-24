@@ -132,7 +132,7 @@ const AMAZON_CancelIntent_Handler =  {
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
 
-        let say = 'Thank you for trying the game. Bye, bye';
+        let say = 'Thank you for trying the game. ';
 
         return responseBuilder
             .speak(say)
@@ -168,48 +168,6 @@ const AMAZON_HelpIntent_Handler =  {
         say += ' You can play the following games :  ' + help_options + '.';
         
         say += ' More info is available after you choose a game.'
-
-        return responseBuilder
-            .speak(say)
-            .reprompt('try again, ' + say)
-            .getResponse();
-    },
-};
-
-
-// Remove pause intent???
-const AMAZON_PauseIntent_Handler =  {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.PauseIntent' ;
-    },
-    handle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        const responseBuilder = handlerInput.responseBuilder;
-        let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-
-        let say = 'Hello from AMAZON.PauseIntent. ';
-
-
-        return responseBuilder
-            .speak(say)
-            .reprompt('try again, ' + say)
-            .getResponse();
-    },
-};
-
-const AMAZON_StartOverIntent_Handler =  {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.StartOverIntent' ;
-    },
-    handle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        const responseBuilder = handlerInput.responseBuilder;
-        let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-
-        let say = 'Hello from AMAZON.StartOverIntent. ';
-
 
         return responseBuilder
             .speak(say)
@@ -495,26 +453,6 @@ const SpecialGameIntent_Handler =  {
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
         let say = 'Hello from SpecialGameIntent. ';
-
-
-        return responseBuilder
-            .speak(say)
-            .reprompt('try again, ' + say)
-            .getResponse();
-    },
-};
-
-const FreestyleIntent_Handler =  {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        return request.type === 'IntentRequest' && request.intent.name === 'FreestyleIntent' ;
-    },
-    handle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        const responseBuilder = handlerInput.responseBuilder;
-        let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-
-        let say = 'Hello from FreestyleIntent. ';
 
 
         return responseBuilder
@@ -915,15 +853,12 @@ exports.handler = skillBuilder
     .addRequestHandlers(
         AMAZON_CancelIntent_Handler, 
         AMAZON_HelpIntent_Handler, 
-        AMAZON_PauseIntent_Handler, 
-        AMAZON_StartOverIntent_Handler, 
         AMAZON_StopIntent_Handler, 
         AMAZON_NavigateHomeIntent_Handler, 
         AnswerIntent_Handler, 
         GuessTheCityIntent_Handler, 
         GuessTheCountryIntent_Handler, 
-        SpecialGameIntent_Handler, 
-        FreestyleIntent_Handler, 
+        SpecialGameIntent_Handler,  
         GiveUpIntent_Handler,
         LaunchRequest_Handler, 
         SessionEndedHandler
